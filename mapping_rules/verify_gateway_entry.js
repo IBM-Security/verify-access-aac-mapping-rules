@@ -469,7 +469,7 @@ function processFactorsTOTPVerification(ulh, currentClient, uri, totp) {
             };
 
             debugLog("processFactorsTOTPVerification AuthSvcClient sending to verify_gateway_totp: " + JSON.stringify(body));
-            let authsvcResponseStr = AuthSvcClient.executeInInfoMap(context, JSON.stringify(body));
+            let authsvcResponseStr = AuthSvcClient.execute(JSON.stringify(body));
             debugLog("processFactorsTOTPVerification AuthSvcClient result: " + authsvcResponseStr);
 
             let authSvcResponse = JSON.parse(''+authsvcResponseStr);
@@ -506,7 +506,7 @@ function processFactorsMACOTPStart(ulh, currentClient, uri, deliveryType, delive
     }
 
     debugLog("processFactorsMACOTPStart AuthSvcClient sending to verify_gateway_macotp: " + JSON.stringify(body));
-    let authsvcResponseStr = AuthSvcClient.executeInInfoMap(context, JSON.stringify(body));
+    let authsvcResponseStr = AuthSvcClient.execute(JSON.stringify(body));
     debugLog("processFactorsMACOTPStart AuthSvcClient result: " + authsvcResponseStr);
 
     let authsvcResponse = JSON.parse(''+authsvcResponseStr);
@@ -584,7 +584,7 @@ function processFactorsMACOTPSubmit(ulh, currentClient, uri, deliveryType, otp) 
         };
 
         debugLog("processFactorsMACOTPSubmit AuthSvcClient sending to verify_gateway_macotp: " + JSON.stringify(body));
-        let authsvcResponseStr = AuthSvcClient.executeInInfoMap(context, JSON.stringify(body));
+        let authsvcResponseStr = AuthSvcClient.execute(JSON.stringify(body));
         debugLog("processFactorsMACOTPSubmit AuthSvcClient result: " + authsvcResponseStr);
 
         let authsvcResponse = JSON.parse(''+authsvcResponseStr);
@@ -714,7 +714,7 @@ function processTOTPVerification(ulh, currentClient, uri, totp) {
             };
 
             debugLog("processTOTPVerification AuthSvcClient sending to verify_gateway_totp: " + JSON.stringify(body));
-            let authsvcResponseStr = AuthSvcClient.executeInInfoMap(context, JSON.stringify(body));
+            let authsvcResponseStr = AuthSvcClient.execute(JSON.stringify(body));
             debugLog("processTOTPVerification AuthSvcClient result: " + authsvcResponseStr);
 
             let authSvcResponse = JSON.parse(''+authsvcResponseStr);
@@ -800,7 +800,7 @@ function processMACOTPStart(ulh, currentClient, uri, deliveryType, deliveryAttri
     }
 
     debugLog("processMACOTPStart AuthSvcClient sending to verify_gateway_macotp: " + JSON.stringify(body));
-    let authsvcResponseStr = AuthSvcClient.executeInInfoMap(context, JSON.stringify(body));
+    let authsvcResponseStr = AuthSvcClient.execute(JSON.stringify(body));
     debugLog("processMACOTPStart AuthSvcClient result: " + authsvcResponseStr);
 
     let authsvcResponse = JSON.parse(''+authsvcResponseStr);
@@ -873,7 +873,7 @@ function processMACOTPSubmit(ulh, currentClient, uri, deliveryType, otp) {
         };
 
         debugLog("processMACOTPSubmit AuthSvcClient sending to verify_gateway_macotp: " + JSON.stringify(body));
-        let authsvcResponseStr = AuthSvcClient.executeInInfoMap(context, JSON.stringify(body));
+        let authsvcResponseStr = AuthSvcClient.execute(JSON.stringify(body));
         debugLog("processMACOTPSubmit AuthSvcClient result: " + authsvcResponseStr);
 
         let authsvcResponse = JSON.parse(''+authsvcResponseStr);
@@ -1252,7 +1252,7 @@ function mobilePushKickoff(methodObj, contextMessage) {
     };
 
     debugLog("mobilePushKickoff AuthSvcClient sending to verify_gateway_mmfa_initiate: " + JSON.stringify(body));
-    let authsvcResponseStr = AuthSvcClient.executeInInfoMap(context, JSON.stringify(body));
+    let authsvcResponseStr = AuthSvcClient.execute(JSON.stringify(body));
     debugLog("mobilePushKickoff AuthSvcClient result: " + authsvcResponseStr);
 
     let authsvcResponse = JSON.parse(''+authsvcResponseStr);
@@ -1289,7 +1289,7 @@ function mobilePushSelectDevice(stateObj) {
     };
 
     debugLog("mobilePushSelectDevice AuthSvcClient sending to authsvc: " + JSON.stringify(body));
-    let authsvcResponseStr = AuthSvcClient.executeInInfoMap(context, JSON.stringify(body));
+    let authsvcResponseStr = AuthSvcClient.execute(JSON.stringify(body));
     debugLog("mobilePushSelectDevice AuthSvcClient result: " + authsvcResponseStr);
 
     let authsvcResponse = JSON.parse(''+authsvcResponseStr);
@@ -1428,7 +1428,7 @@ function processPollSignatureVerification(ulh, currentClient, uri) {
         };
 
         debugLog("processPollSignatureVerification AuthSvcClient sending to authsvc: " + JSON.stringify(body));
-        let authsvcResponseStr = AuthSvcClient.executeInInfoMap(context, JSON.stringify(body));
+        let authsvcResponseStr = AuthSvcClient.execute(JSON.stringify(body));
         debugLog("processPollSignatureVerification AuthSvcClient result: " + authsvcResponseStr);
 
         let authsvcResponse = JSON.parse(''+authsvcResponseStr);
