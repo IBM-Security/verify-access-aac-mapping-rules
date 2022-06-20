@@ -691,48 +691,61 @@ if((only_allow_conf_client_introspect && request_type == "introspect") ||
 function produceClaim(claimName, expectedValues, isEssential, stateId, toSave) {
 
 	var value = null;
-
-	// If expectedValues exist, use it
-	if (expectedValues != null && expectedValues.length > 0) {
-		value = expectedValues;
-	}
-
-	if (claimName == "acr") {
-		value = stsuu.getAttributeContainer()
-				.getAttributeValuesByNameAndType("acr_fulfilled", "urn:ibm:names:ITFIM:5.1:accessmanager");
-	}
-
-	// Attempt to get the value of the claim from AttributeSource resolution.
-	if (value == null) {
-		value = stsuu.getAttributeContainer()
-				.getAttributeValuesByNameAndType(claimName, "urn:ibm:names:ITFIM:5.1:accessmanager");
-		if (value != null) {
-			var tmp_value = value;
-			if(value.length != null) {
-				tmp_value = [];
-				for (var i = 0 ; i < value.length; i++) {
-					tmp_value.push(""+value[i]);
-				}
-			} else {
-				tmp_value = ""+value;
-			}
-			toSave.push({"key" : ""+claimName, "value" : JSON.stringify(tmp_value)});
-		}
-	}
-
-	// Check the extra attrs now
-	if((value == null || value.length == 0) && stateId != null) {
-		value = OAuthMappingExtUtils.getAssociation(stateId, "urn:ibm:names:ITFIM::oauth:saved:claim:" + claimName);
-		// It may have been stored as an array
-		var tmp_value = JSON.parse(value);
-		if(tmp_value != null	&& tmp_value.length != null) {
-			var tmp_array = java.lang.reflect.Array.newInstance(java.lang.String, tmp_value.length);
-			for(var i = 0; i < tmp_value.length; i++) {
-				tmp_array[i] = tmp_value[i];
-			}
-			value = tmp_array;
-		}
-	}
+    
+    /** 
+    * Filter out any claims that are not wanted in the id token. To enable filtering of claims, set restrictAttributes = true.
+    * In this example, attributes from the credential are filtered out. This is an example only, and if restrictAttibutes is enabled,
+    * the claims which are filtered out in the conditional check may need to be modified. 
+    **/
+    var restrictAttributes = false;
+    if(restrictAttributes && (claimName.startsWith("AZN_") || claimName.startsWith("tokenvalue")))
+    {
+        IDMappingExtUtils.traceString("produceClaim " + claimName + " is a restricted attribute and cannot be accessed in this manner.");
+    } else {
+    
+    	// If expectedValues exist, use it
+    	if (expectedValues != null && expectedValues.length > 0) {
+    		value = expectedValues;
+    	}
+    
+    	if (claimName == "acr") {
+    		value = stsuu.getAttributeContainer()
+    				.getAttributeValuesByNameAndType("acr_fulfilled", "urn:ibm:names:ITFIM:5.1:accessmanager");
+    	}
+    
+    	// Attempt to get the value of the claim from AttributeSource resolution.
+    	if (value == null) {
+    		value = stsuu.getAttributeContainer()
+    				.getAttributeValuesByNameAndType(claimName, "urn:ibm:names:ITFIM:5.1:accessmanager");
+    	}
+    	if (value != null) {
+    		var tmp_value = value;
+    		if(value.length != null) {
+    			tmp_value = [];
+    			for (var i = 0 ; i < value.length; i++) {
+    				tmp_value.push(""+value[i]);
+    			}
+    		} else {
+    			tmp_value = ""+value;
+    		}
+    		toSave.push({"key" : ""+claimName, "value" : JSON.stringify(tmp_value)});
+    	}
+    	
+    
+    	// Check the extra attrs now
+    	if((value == null || value.length == 0) && stateId != null) {
+    		value = OAuthMappingExtUtils.getAssociation(stateId, "urn:ibm:names:ITFIM::oauth:saved:claim:" + claimName);
+    		// It may have been stored as an array
+    		var tmp_value = JSON.parse(value);
+    		if(tmp_value != null	&& tmp_value.length != null) {
+    			var tmp_array = java.lang.reflect.Array.newInstance(java.lang.String, tmp_value.length);
+    			for(var i = 0; i < tmp_value.length; i++) {
+    				tmp_array[i] = tmp_value[i];
+    			}
+    			value = tmp_array;
+    		}
+    	}
+    }
 
 	// Essential claim - set the value to 'n/a' or boolean 'false' if not exist
 	if (value == null && isEssential) {
@@ -797,7 +810,13 @@ if (customize_id_token) {
 
 	} else if (request_type == "access_token") {
 		populate_id_token = true;
-		var code = stsuu.getContextAttributes().getAttributeValueByNameAndType("code","urn:ibm:names:ITFIM:oauth:body:param");
+		var code = null;
+	   if (grant_type == "authorization_code") {
+	      code = stsuu.getContextAttributes().getAttributeValueByNameAndType("code","urn:ibm:names:ITFIM:oauth:body:param");
+	   } 
+	   else if (grant_type == "refresh_token") {
+	      code = stsuu.getContextAttributes().getAttributeValueByNameAndType("refresh_token","urn:ibm:names:ITFIM:oauth:body:param");
+	   }
 		if (code != null) {
 			var token = OAuthMappingExtUtils.getToken(code);
 			if (token != null) {
@@ -906,7 +925,7 @@ if (custom_client_id_secret) {
 
 /**
  * 
- * Set "addx5t" value to "false" to generate and add x5t value to JWT header
+ * Set "addx5t" value to "true" to generate and add x5t value to JWT header
  * 
  * Note: jwt header can only be set in pre_token mapping rule
  *
@@ -929,7 +948,7 @@ if (addx5t){
 
 /**
  * 
- * Set "addx5t#S256" value to "false" to generate and add x5t#S256 value to JWT header
+ * Set "addx5t#S256" value to "true" to generate and add x5t#S256 value to JWT header
  * 
  * Note: jwt header can only be set in pre_token mapping rule
  *
@@ -950,7 +969,7 @@ if (addx5tS256){
 
 /**
  * 
- * Set "addx5c" value to "false" to generate and add x5c value to JWT header
+ * Set "addx5c" value to "true" to generate and add x5c value to JWT header
  * 
  * Note: jwt header can only be set in pre_token mapping rule
  *

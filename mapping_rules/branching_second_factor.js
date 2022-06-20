@@ -39,6 +39,7 @@ if(username != null) {
         methods.sort(function(a, b){
             return mechanismPriority.indexOf(a["mechanismURI"]) > mechanismPriority.indexOf(b["mechanismURI"]);
         });
+        methods = encodeValues(methods, ["nickname", "deviceName", "deviceType", "osVersion"]);
 
         macros.put("@METHODS@", JSON.stringify(methods));
         macros.put("@MECHANISMS@", JSON.stringify(mechanisms));

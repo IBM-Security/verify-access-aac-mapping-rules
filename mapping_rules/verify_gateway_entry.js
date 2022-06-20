@@ -501,7 +501,7 @@ function processFactorsMACOTPStart(ulh, currentClient, uri, deliveryType, delive
     } else if (uri == "/v2.0/factors/smsotp/transient/verifications") {
         body.deliveryType = "SMS";
         body.mobileNumber = deliveryAttribute;
-    } else
+    } else 
         throwError("processFactorsMACOTPStart", "Invalid uri");{
     }
 
@@ -960,15 +960,15 @@ function getDeviceObj(scimID, username, authenticator, methodId, fingerprintSupp
         "state": "ACTIVE",
         "attributes": {
             "applicationVersion": "unavaialble",
-            "deviceType": authenticator.deviceType + (fingerprintSupport ? "-biometric" : "-userPresence"),
+            "deviceType": IDMappingExtUtils.escapeHtml(authenticator.deviceType) + (fingerprintSupport ? "-biometric" : "-userPresence"),
             "accountName": username,
             "platformType": "unavailable",
             "pushToken": "unavailable",
-            "deviceName": authenticator.deviceName,
+            "deviceName": "" + IDMappingExtUtils.escapeHtml(authenticator.deviceName),
             "deviceId": "unavailable",
             "fingerprintSupport": fingerprintSupport,
             "verifySdkVersion": "unavailable",
-            "osVersion": authenticator.osVersion,
+            "osVersion": "" + IDMappingExtUtils.escapeHtml(authenticator.osVersion),
             "frontCameraSupport": true,
             "faceSupport": false,
             "applicationId": "com.ibm.security.verifyapp"
