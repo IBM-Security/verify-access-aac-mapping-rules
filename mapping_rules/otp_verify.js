@@ -84,26 +84,59 @@ if (isRetryEnforcementEnabled && (otpType=="mac_otp") ) {
 var isRegenerateEnforcementEnabled = true;
 var regenerateLimit = 5;
 
-if(isRegenerateEnforcementEnabled)
-{   
-    // Get the count for the current session
-    var regenerateCounterID = stsuuCtxAttrs.getAttributeValueByName("otp.sts.otp-session.id");	
-    IDMappingExtUtils.traceString("OTPVerify:Regenerate. Current OTP Session ID : " + regenerateCounterID);
+if (isRegenerateEnforcementEnabled) {
+    // Initialize the DMAP Cache:
     var dmapCache = IDMappingExtUtils.getIDMappingExtCache();
-    var currentCounter = 0;
-    if(dmapCache.exists(regenerateCounterID)){
+
+    // Only increment the regenerate counter if it's a regeneration
+    // of the same OTP session
+    var regenerateCounterID = stsuuCtxAttrs
+            .getAttributeValueByName("otp.sts.otp-session.id");
+
+    IDMappingExtUtils
+            .traceString("OTPGenerate:Regenerate. Current OTP Session ID : "
+                    + regenerateCounterID);
+
+    // Set initial counter to -1 since first load of page will increment 
+    // the counter
+    var currentCounter = -1;
+
+    // Check for a current counter in the SPS Session Data and fetch the
+    // incremented value
+    if (dmapCache.exists(regenerateCounterID)) {
         currentCounter = dmapCache.get(regenerateCounterID);
-        IDMappingExtUtils.traceString("OTPVerify:Regenerate. Regenerate count : " + currentCounter);
     }
-    // If "regenerateLimit" has been reached, set appropriate messages and disable the "Regenerate" button. 
-    if(currentCounter >= regenerateLimit) {
-        // Set appropriate messages
-        IDMappingExtUtils.traceString("OTPVerify:Regenerate. Counter reached max : " + currentCounter);
-        var ctxMappingRuleData = new Attribute("@MAPPING_RULE_DATA@", "otp.sts.macro.type", "Regeneration limit exceeded.");
+    IDMappingExtUtils
+    .traceString("OTPGenerate:Regenerate. Counter before incrementing : "
+            + currentCounter);
+    currentCounter = parseInt(currentCounter) + 1;
+    IDMappingExtUtils
+    .traceString("OTPGenerate:Regenerate. Counter after incrementing: "
+            + currentCounter);
+    
+    // If "regenerateLimit" has not been reached, store the new incremented
+    // counter value; else, disable the "Regenerate" button
+    if (currentCounter < regenerateLimit) {
+        // Increment the counter as this will be counted as a regeneration
+        // attempt.
+        dmapCache.put(regenerateCounterID, currentCounter, 3600);
+
+    } else if (currentCounter >= regenerateLimit) {
+        // If "regenerateLimit" has been reached, set appropriate messages and
+        // disable the "Regenerate" button. 
+        IDMappingExtUtils
+                .traceString("OTPGenerate:Regenerate. Counter reached max : "
+                        + currentCounter);
+        var ctxMappingRuleData = new Attribute("@MAPPING_RULE_DATA@",
+                "otp.sts.macro.type", "Regeneration limit exceeded.");
         stsuuCtxAttrs.setAttribute(ctxMappingRuleData);
+
         // User defined macro. This replaces the macro @OTP_REGENERATE_DISABLED@
-        // in OTP Login page with the specified value, which causes the regenerate button in that page to be disabled.
-        var ctxRegenerateDisabled = new Attribute("@OTP_REGENERATE_DISABLED@", "otp.sts.macro.type", "disabled");
+        // in OTP Login page with the specified value,
+        // which causes the regenerate button in that page to be disabled.
+        var ctxRegenerateDisabled = new Attribute("@OTP_REGENERATE_DISABLED@",
+                "otp.sts.macro.type", "disabled");
         stsuuCtxAttrs.setAttribute(ctxRegenerateDisabled);
+        dmapCache.put(regenerateCounterID, currentCounter, 3600);
     }
 }

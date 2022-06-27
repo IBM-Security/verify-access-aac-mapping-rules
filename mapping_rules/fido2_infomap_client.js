@@ -118,7 +118,7 @@ else if (fidoInfoMap == "assertionOptions") {
         macros.put("@FIDO_RP_ID@", options['rpId']);
         macros.put("@FIDO_TIMEOUT@", options['timeout'].toString());
         macros.put("@FIDO_CHALLENGE@", options['challenge']);
-        macros.put('@FIDO_EXTENSIONS@', JSON.stringify( options['extensions']));
+        macros.put('@FIDO_EXTENSIONS@', JSON.stringify(options['extensions']));
         macros.put("@FIDO_USER_ID@", options['userId'] == null ? "" : options['userId']);
         macros.put("@FIDO_STATUS@", options['status']);
         macros.put("@FIDO_ERROR_MESSAGE@", options['errorMessage']);

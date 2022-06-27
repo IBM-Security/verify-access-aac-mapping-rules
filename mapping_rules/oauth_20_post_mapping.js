@@ -75,9 +75,6 @@ var cc_demo = false;
 
 if (cc_demo) {
 
-	var grant_type = null;
-	var temp_attr = null;
-
 	if (request_type == "access_token" && grant_type == "client_credentials" && state_id != null) {
 
 		/* Manipulate extra attributes */
@@ -387,7 +384,6 @@ if(tokenUpdateDemo) {
 	 */
 
 	var temp_attr = null;
-	var grant_type = null;
 	var code = null;
 
 	/*
@@ -1004,7 +1000,28 @@ if (definition_id != null && OAuthMappingExtUtils.isFapiCompliantByDefinitionID(
 	   var result = OAuthMappingExtUtils.associate(state_id, "cnf", client_thumbprintAttribute);
 	}
 
+	/**
+	* Dynamic Client Registration v3.3
+	* https://openbankinguk.github.io/dcr-docs-pub/v3.3/dynamic-client-registration.html#endpoints
+	* This section provides a list of available API endpoints for Dynamic Client Registration. 
+	* PUT /register/{ClientId} DELETE /register/{ClientId} GET /register/{ClientId}
+	* Currently we support /register?client_id={ClientId}
+	* To support the specification registration_client_uri in the registration response will be modified.
+	* 
+	**/
 
+	
+	var registration_client_uri = stsuu.getContextAttributes().getAttributeValueByNameAndType("registration_client_uri","urn:ibm:names:ITFIM:oauth:response:attribute");
+	var client_id = stsuu.getContextAttributes().getAttributeValueByNameAndType("client_id","urn:ibm:names:ITFIM:oauth:response:attribute");
+	IDMappingExtUtils.traceString("Original registration_client_uri : "+registration_client_uri);
+	if(request_type == "client_register"){
+		if(registration_client_uri != null && client_id != null){
+			stsuu.getContextAttributes().removeAttributeByNameAndType("registration_client_uri","urn:ibm:names:ITFIM:oauth:response:attribute");
+			var new_registration_uri = registration_client_uri.split("\\?")[0] + "/" + client_id;
+			IDMappingExtUtils.traceString("New registration_client_uri : "+new_registration_uri);
+			stsuu.addContextAttribute(new com.tivoli.am.fim.trustserver.sts.uuser.Attribute("registration_client_uri","urn:ibm:names:ITFIM:oauth:response:attribute",new_registration_uri));
+		}	
+	}
 
 }//End of FAPI Conformance Snippets
 
@@ -1016,3 +1033,27 @@ if (definition_id != null && OAuthMappingExtUtils.isFapiCompliantByDefinitionID(
 if (request_type == "access_token" && grant_type == "urn:ietf:params:oauth:grant-type:token-exchange") {
 	doTokenExchangePost();
 }// End of Oauth20_TokenExchange_PostMapping
+
+/*
+* Adding extra attributes to a response in rich JSON format. This example demonstrates in the 
+* context of token introspection, but can also be applied to other API responses such as the token endpoint.
+* The attribute type is set to urn:ibm:names:ITFIM:oauth:response:attribute:json
+* The supported values are stringified JSON object, array, boolean or positive integer. Anything else is
+* treated as a string and might as well be added with a regular response attribute type.
+*/
+var jsonAttributeResponseDemo = false;
+if (jsonAttributeResponseDemo && request_type == "introspect") {
+  stsuu.addContextAttribute(new Attribute("jsonObject", "urn:ibm:names:ITFIM:oauth:response:attribute:json", 
+  	JSON.stringify({ "name": "value"})));
+  stsuu.addContextAttribute(new Attribute("jsonArray", "urn:ibm:names:ITFIM:oauth:response:attribute:json", 
+  	JSON.stringify([ "value1", 2, "value3", {"name": "value4"}])));
+  stsuu.addContextAttribute(new Attribute("jsonBoolean", "urn:ibm:names:ITFIM:oauth:response:attribute:json", 
+  	"true"));
+  stsuu.addContextAttribute(new Attribute("jsonInt", "urn:ibm:names:ITFIM:oauth:response:attribute:json", 
+  	"12345"));
+  stsuu.addContextAttribute(new Attribute("jsonString", "urn:ibm:names:ITFIM:oauth:response:attribute:json", 
+  	"stringValue"));
+}
+
+
+
