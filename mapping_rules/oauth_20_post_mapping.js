@@ -13,6 +13,8 @@ importClass(Packages.java.util.ArrayList);
 importClass(Packages.java.util.HashMap);
 importMappingRule("Oauth_20_TokenExchange");
 
+// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+
 /**
  *
  * This mapping rule contains scenarios which occur post token creation. This

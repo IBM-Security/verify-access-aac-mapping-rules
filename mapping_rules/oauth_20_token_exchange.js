@@ -9,6 +9,8 @@ importClass(Packages.com.tivoli.am.fim.fedmgr2.trust.util.LocalSTSClient);
 importClass(Packages.java.util.ArrayList);
 importClass(Packages.java.util.HashMap);
 
+// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+
 /**
  * This function doTokenExchangePre shows an example of validate token claims and generate the access_token for 
  * the oauth 2.0 token exhcange.

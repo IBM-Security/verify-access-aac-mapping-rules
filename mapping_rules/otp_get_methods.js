@@ -1,3 +1,5 @@
+// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+
 // OTPGetMethods mapping rule.
 
 importClass(Packages.com.tivoli.am.fim.trustserver.sts.uuser.Attribute);

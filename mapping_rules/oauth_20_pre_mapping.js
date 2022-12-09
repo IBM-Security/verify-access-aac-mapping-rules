@@ -12,6 +12,8 @@ importClass(Packages.java.util.ArrayList);
 importClass(Packages.java.util.HashMap);
 importMappingRule("Oauth_20_TokenExchange");
 
+// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+
 /**
  * This mapping rule uses a user registry for verification of the username 
  * and password for the ROPC scenario.
