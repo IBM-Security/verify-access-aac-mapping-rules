@@ -1,4 +1,6 @@
 /*********************************************************************
+ * Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+ *
  *   Licensed Materials - Property of IBM
  *   (C) Copyright IBM Corp. 2016, 2021. All Rights Reserved
  *

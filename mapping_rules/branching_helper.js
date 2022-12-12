@@ -2,6 +2,8 @@ importClass(Packages.com.tivoli.am.fim.trustserver.sts.utilities.IDMappingExtUti
 importPackage(Packages.com.tivoli.am.fim.registrations);
 importPackage(Packages.com.ibm.security.access.user);
 
+// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+
 /**
  * Get the branches of this decision from the BRANCHES macro.
  */
@@ -73,6 +75,35 @@ function getUserData(username, mechanisms) {
     return [methods, mechMap];
 }
 
+/**
+ * Fetch the user's enrolled FIDO registrations
+ */
+function getFIDORegistrations(username) {
+    let registrations = [];
+    let fidoRegistrations = MechanismRegistrationHelper.getFidoRegistrationsForUser(username);
+
+    for(j = 0; j < fidoRegistrations.length; j++) {
+        let registration = fidoRegistrations[j];
+        registrations.push(JSON.parse(registration.toString()));
+    };
+
+    return registrations;
+}
+
+/**
+ * Fetch the user's enrolled MMFA registrations
+ */
+function getMMFARegistrations(username) {
+    let registrations = [];
+    let mmfaRegistrations = MechanismRegistrationHelper.getMmfaRegistrationsForUser(username);
+
+    for(j = 0; j < mmfaRegistrations.length; j++) {
+        let registration = mmfaRegistrations[j];
+        registrations.push(JSON.parse(registration.toString()));
+    };
+
+    return registrations;
+}
 
 /**
  * Get the username from the session

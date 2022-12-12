@@ -3,6 +3,8 @@ importPackage(Packages.com.ibm.security.access.user);
 
 importMappingRule("BranchingHelper");
 
+// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+
 IDMappingExtUtils.traceString("Entry Branching Second Factor");
 
 var mechanismPriority = ["urn:ibm:security:authentication:asf:mechanism:fido2", "urn:ibm:security:authentication:asf:mechanism:mmfa", "urn:ibm:security:authentication:asf:mechanism:totp", "urn:ibm:security:authentication:asf:mechanism:hotp"];

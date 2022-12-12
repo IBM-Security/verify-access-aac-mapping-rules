@@ -1,3 +1,5 @@
+// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+
 // AuthSvcCredential mapping rule.
 
 // You can use this mapping rule to modify the current user credential. To this

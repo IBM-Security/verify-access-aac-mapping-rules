@@ -1,11 +1,14 @@
 importClass(Packages.com.tivoli.am.fim.trustserver.sts.utilities.IDMappingExtUtils);
 importClass(Packages.com.tivoli.am.fim.trustserver.sts.utilities.OAuthMappingExtUtils);
+importClass(Packages.com.tivoli.am.fim.registrations.MechanismRegistrationHelper);
 importClass(Packages.com.ibm.security.access.user.UserLookupHelper);
 importClass(Packages.com.ibm.security.access.scimclient.ScimClient);
 importClass(Packages.com.tivoli.am.fim.base64.BASE64Utility);
 importClass(Packages.com.tivoli.am.fim.authsvc.local.client.AuthSvcClient);
 
 /**
+ * Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+ *
  * This mapping rule allows a IBM Security Verify Gateway user to authenticate using
  * on-premise registered authentication methods.
  *
@@ -22,7 +25,7 @@ var PERSISTENT_CACHE_TIMEOUT = 300; // 5 mins
 var POINT_OF_CONTACT_URL = "https://www.mmfa.ibm.com";
 
 //
-// The set of permitted ISAM OAuth clients that can invoke this Infomap/policy.
+// The set of permitted ISVA OAuth clients that can invoke this Infomap/policy.
 // You need to put your OAuth client in this list, or create one called VerifyGatewayClient.
 //
 var allowedClients = [ "VerifyGatewayClient" ];
@@ -37,7 +40,7 @@ var allowedClients = [ "VerifyGatewayClient" ];
 var clientToAllowedGroups = null;
 
 //
-// Simple config used to control which ISAM 2FA methods are allowed to be returned
+// Simple config used to control which ISVA 2FA methods are allowed to be returned
 //
 var ENABLED_2FA_METHODS = {
         totp: true,
@@ -128,6 +131,14 @@ function debugLog(str) {
     } else {
         IDMappingExtUtils.traceString(str);
     }
+}
+
+function createUUID() {
+    return ''+OAuthMappingExtUtils.createUUID();
+}
+
+function emptyIfNull(s) {
+    return (s == null ? '' : ''+s);
 }
 
 function arrayToLogStr(a) {
@@ -517,7 +528,7 @@ function processFactorsMACOTPStart(ulh, currentClient, uri, deliveryType, delive
         // store state information based on initial stateId of this policy invocation
         // that's because the stateid sent to the client in the factors-like response is
         // static for the lifetime of this attempt at MAC OTP, however the user may try
-        // multiple times and each time the ISAM-based StateId will change
+        // multiple times and each time the ISVA-based StateId will change
         let stateObj = {
                 "stateId": jsonBody["stateId"]
         }
@@ -576,7 +587,7 @@ function processFactorsMACOTPSubmit(ulh, currentClient, uri, deliveryType, otp) 
             throwError("processFactorsMACOTPSubmit", "Unable to retrieve authsvc session state");
         }
 
-        // now time to verify against ISAM
+        // now time to verify against ISVA
         let body = {
             "StateId": stateObj.stateId,
             "otp.user.otp": otp,
@@ -781,7 +792,7 @@ function processUserAuthentication(ulh, currentClient, uri, username, pwd) {
 function processMACOTPStart(ulh, currentClient, uri, deliveryType, deliveryAttribute) {
     let result = {};
 
-    // now time to kick it off with ISAM
+    // now time to kick it off with ISVA
     let body = {
         "PolicyId": "urn:ibm:security:authentication:asf:verify_gateway_macotp",
         "username": 'transient',
@@ -811,7 +822,7 @@ function processMACOTPStart(ulh, currentClient, uri, deliveryType, deliveryAttri
         // store state information based on initial stateId of this policy invocation
         // that's because the stateid sent to the client in the ISV-like response is
         // static for the lifetime of this attempt at MAC OTP, however the user may try
-        // multiple times and each time the ISAM-based StateId will change
+        // multiple times and each time the ISVA-based StateId will change
         let stateObj = {
                 "stateId": jsonBody["stateId"]
         }
@@ -865,7 +876,7 @@ function processMACOTPSubmit(ulh, currentClient, uri, deliveryType, otp) {
             throwError("processMACOTPSubmit", "Unable to retrieve authsvc session state");
         }
 
-        // now time to verify against ISAM
+        // now time to verify against ISVA
         let body = {
             "StateId": stateObj.stateId,
             "otp.user.otp": otp,
@@ -919,56 +930,37 @@ function getSCIMUserRecordFromResults(jobj) {
     return result;
 }
 
-function getAuthenticatorDevice(authenticators, id) {
-    if (authenticators != null && authenticators.length > 0) {
-        for (var i = 0; i < authenticators.length; i++) {
-            if (authenticators[i].id == id) {
-                // verify all expected properties of the authenticator are populated
-                let a = authenticators[i];
-                if (typeof a["deviceType"] == "string" &&
-                  typeof a["deviceName"] == "string" &&
-                  typeof a["enabled"] == "boolean" &&
-                  typeof a["osVersion"] == "string") {
-                    return a;
-                } else {
-                    debugLog("getAuthenticatorDevice: bad authenticator data for id: " + id);
-                }
-            }
-        }
-    }
-    return null;
-}
-
-function getDeviceObj(scimID, username, authenticator, methodId, fingerprintSupport) {
+function getDeviceObjFromRegistration(scimID, username, reg, regid, fingerprintSupport) {
     // whilst the device.id attribute populated below is logically the authenticator id, for
-    // the ISAM integration we set it to the fingerprintMethod id or userPresenceMethod id
+    // the ISVA integration we set it to the logical fingerprintMethod id or userPresenceMethod id
     // so that when returned as part of mobile push kick-off we know precisely
-    // which device/method to auto-select for invocation.
+    // which response policy (userpresence or fingerprint) to auto-select for invocation.
+    // It allows mobilePushKickoff to select userpresence or fingerprint response
+    // policy in the case where the same authenticator registration has both.
 
     //
     // also deviceType is used in the display to human about what method to select.
-    // If ISAM has both biometric (e.g. fingerprint) and user-presence registered, there
+    // If ISVA has both biometric (e.g. fingerprint) and user-presence registered, there
     // is no way for the user to see the difference, so we annotate the deviceType
     //
     let result = {
-        //"id": authenticator.id,
-        "id": methodId,
+        "id": regid,
         "owner": scimID,
-        "enabled": authenticator.enabled,
+        "enabled": reg.isEnabled(),
         "clientId": "AuthenticatorClient",
         "creationTime": "2019-01-01T00:00:00.000Z",
         "state": "ACTIVE",
         "attributes": {
             "applicationVersion": "unavaialble",
-            "deviceType": IDMappingExtUtils.escapeHtml(authenticator.deviceType) + (fingerprintSupport ? "-biometric" : "-userPresence"),
+            "deviceType": IDMappingExtUtils.escapeHtml(emptyIfNull(reg.getDeviceType())) + (fingerprintSupport ? "-biometric" : "-userPresence"),
             "accountName": username,
             "platformType": "unavailable",
             "pushToken": "unavailable",
-            "deviceName": "" + IDMappingExtUtils.escapeHtml(authenticator.deviceName),
+            "deviceName": "" + IDMappingExtUtils.escapeHtml(emptyIfNull(reg.getDeviceName())),
             "deviceId": "unavailable",
             "fingerprintSupport": fingerprintSupport,
             "verifySdkVersion": "unavailable",
-            "osVersion": "" + IDMappingExtUtils.escapeHtml(authenticator.osVersion),
+            "osVersion": "" + IDMappingExtUtils.escapeHtml(emptyIfNull(reg.getOSVersion())),
             "frontCameraSupport": true,
             "faceSupport": false,
             "applicationId": "com.ibm.security.verifyapp"
@@ -1000,139 +992,121 @@ function processGetSignatures(ulh, currentClient, uri) {
                 // perform authorizatin check - error thrown if this user is not allowed to be used from this client
                 checkUserAuthorization(currentClient, user);
 
-                let scimConfig = context.get(Scope.SESSION, "urn:ibm:security:asf:policy", "scimConfig");
-                if (scimConfig != null) {
-                    let resp = ScimClient.httpGet(scimConfig, getSCIMQueryURL(scimID));
-                    if (resp != null && resp.getCode() == 200) {
-                        let respJson = JSON.parse(resp.getBody());
-                        debugLog("SCIM resp: "+respJson.totalResults);
-                        debugLog("SCIM resp: "+resp.getBody());
+                // look up MMFA registrations for user using API available from 10.0.4.0
+                let mmfaRegistrations = MechanismRegistrationHelper.getMmfaRegistrationsForUser(username);
+                if (mmfaRegistrations != null && mmfaRegistrations.length > 0) {
 
-                        let userObj = getSCIMUserRecordFromResults(respJson);
-                        if (userObj != null) {
-                            debugLog("Found a user with : "+JSON.stringify(userObj));
+                    // build state information about registrations - we decide what to do with them afterward
+                    let fingerprintMethods = [];
+                    let userPresenceMethods = [];
 
-                            let mmfaData = userObj['urn:ietf:params:scim:schemas:extension:isam:1.0:MMFA:Authenticator'];
+                    debugLog("mmfaRegistrations: " + mmfaRegistrations.length);
+                    for (let i = 0; i < mmfaRegistrations.length; i++) {
+                        let reg = mmfaRegistrations[i];
+                        debugLog("["+i+"]: " + reg.toJson());
 
-                            if (mmfaData != null) {
-                                let authenticators = mmfaData.authenticators;
-                                let userPresenceMethods = mmfaData.userPresenceMethods;
-                                let fingerprintMethods = mmfaData.fingerprintMethods;
+                        // only process if this registration is enabled
+                        if (reg.isEnabled()) {
+                            
+                            if (reg.hasFingerprintEnrolled()) {
+                                let regid = createUUID();
+                                let deviceObj = getDeviceObjFromRegistration(scimID, username, reg, regid, true);
+                                fingerprintMethods.push({
+                                    "id":  regid,
+                                    "owner": scimID,
+                                    "enabled": true,
+                                    "validated": true,
+                                    "enrollmentUri": "undefined",
+                                    "methodType": "signature",
+                                    "creationTime": "2019-01-01T00:00:00.000Z",
+                                    "subType": "fingerprint",
+                                    "attributes": {
+                                        "deviceSecurity": true,
+                                        "authenticatorUri": "undefined",
+                                        "authenticatorId": ''+reg.getAuthenticatorId(),
+                                        "additionalData": [],
+                                        "algorithm": "RSASHA256"
+                                    },
+                                    "_embedded": deviceObj
+                                });
+                            }
 
-                                debugLog("authenticators : "+JSON.stringify(authenticators));
-                                debugLog("userPresenceMethods : "+JSON.stringify(userPresenceMethods));
-                                debugLog("fingerprintMethods : "+JSON.stringify(fingerprintMethods));
-
-                                /*
-                                 * If fingerprint methods are enabled, and we have at least one, add to the results
-                                 */
-                                if ((ENABLED_MOBILE_PUSH_METHODS.bestAvailable || ENABLED_MOBILE_PUSH_METHODS.fingerprint) && fingerprintMethods != null && fingerprintMethods.length > 0) {
-                                    debugLog("There are fingerprintMethods: " + fingerprintMethods.length);
-                                    for (let i = 0; i < fingerprintMethods.length; i++) {
-                                        if (fingerprintMethods[i].enabled) {
-                                            let authenticator = getAuthenticatorDevice(authenticators, fingerprintMethods[i].authenticator);
-                                            if (authenticator != null && authenticator.enabled) {
-                                                let deviceObj = getDeviceObj(scimID, username, authenticator, fingerprintMethods[i].id, true);
-
-                                                result.signatures.push({
-                                                    "id":  fingerprintMethods[i].id,
-                                                    "owner": scimID,
-                                                    "enabled": true,
-                                                    "validated": true,
-                                                    "enrollmentUri": "undefined",
-                                                    "methodType": "signature",
-                                                    "creationTime": "2019-01-01T00:00:00.000Z",
-                                                    "subType": "fingerprint",
-                                                    "attributes": {
-                                                        "deviceSecurity": true,
-                                                        "authenticatorUri": "undefined",
-                                                        "authenticatorId": authenticator.id,
-                                                        "additionalData": [],
-                                                        "algorithm": "RSASHA256"
-                                                    },
-                                                    "_embedded": deviceObj
-                                                });
-                                                result.total = result.total + 1;
-
-                                                // also store method state object so that if used, kick-off process can retrieve it
-                                                let methodStateObj = {
-                                                    "id": fingerprintMethods[i].id,
-                                                    "username": username,
-                                                    "scimID": scimID,
-                                                    "authenticatorId": authenticator.id,
-                                                    "fingerprint": true
-                                                };
-                                                AuthSvcState.storeState(fingerprintMethods[i].id, methodStateObj);
-
-                                            } else {
-                                                debugLog("authenticator not valid or not enabled");
-                                            }
-                                        } else {
-                                            debugLog("fingerprintMethod not enabled");
-                                        }
-                                    }
-                                }
-
-                                /*
-                                 * If user presence methods are explicitly enabled (or best available is enabled and we don't have any fingerprint methods) add any we have
-                                 */
-                                if ((((!ENABLED_MOBILE_PUSH_METHODS.bestAvailable && ENABLED_MOBILE_PUSH_METHODS.userPresence) || (ENABLED_MOBILE_PUSH_METHODS.bestAvailable && result.total == 0)))
-                                        && userPresenceMethods != null && userPresenceMethods.length > 0) {
-                                    debugLog("There are userPresenceMethods: " + userPresenceMethods.length);
-                                    for (let i = 0; i < userPresenceMethods.length; i++) {
-                                        if (userPresenceMethods[i].enabled) {
-                                            let authenticator = getAuthenticatorDevice(authenticators, userPresenceMethods[i].authenticator);
-                                            if (authenticator != null && authenticator.enabled) {
-                                                let deviceObj = getDeviceObj(scimID, username, authenticator, userPresenceMethods[i].id, false);
-
-                                                result.signatures.push({
-                                                    "id":  userPresenceMethods[i].id,
-                                                    "owner": scimID,
-                                                    "enabled": true,
-                                                    "validated": true,
-                                                    "enrollmentUri": "undefined",
-                                                    "methodType": "signature",
-                                                    "creationTime": "2019-01-01T00:00:00.000Z",
-                                                    "subType": "userPresence",
-                                                    "attributes": {
-                                                        "deviceSecurity": false,
-                                                        "authenticatorUri": "undefined",
-                                                        "authenticatorId": authenticator.id,
-                                                        "additionalData": [],
-                                                        "algorithm": "RSASHA256"
-                                                    },
-                                                    "_embedded": deviceObj
-                                                });
-                                                result.total = result.total + 1;
-
-                                                // also store method state object so that if used, kick-off process can retrieve it
-                                                let methodStateObj = {
-                                                    "id": userPresenceMethods[i].id,
-                                                    "username": username,
-                                                    "scimID": scimID,
-                                                    "authenticatorId": authenticator.id,
-                                                    "fingerprint": false
-                                                };
-                                                AuthSvcState.storeState(userPresenceMethods[i].id, methodStateObj);
-                                            } else {
-                                                debugLog("authenticator not valid or not enabled");
-                                            }
-                                        } else {
-                                            debugLog("userPresencetMethod not enabled");
-                                        }
-                                    }
-                                }
-                            } else {
-                                debugLog("No registered mobile multi-factor authenticators");
+                            if (reg.hasUserPresenceEnrolled()) {
+                                let regid = createUUID();
+                                let deviceObj = getDeviceObjFromRegistration(scimID, username, reg, regid, false);
+                                userPresenceMethods.push({
+                                    "id":  regid,
+                                    "owner": scimID,
+                                    "enabled": true,
+                                    "validated": true,
+                                    "enrollmentUri": "undefined",
+                                    "methodType": "signature",
+                                    "creationTime": "2019-01-01T00:00:00.000Z",
+                                    "subType": "userPresence",
+                                    "attributes": {
+                                        "deviceSecurity": false,
+                                        "authenticatorUri": "undefined",
+                                        "authenticatorId": ''+reg.getAuthenticatorId(),
+                                        "additionalData": [],
+                                        "algorithm": "RSASHA256"
+                                    },
+                                    "_embedded": deviceObj
+                                });
                             }
                         } else {
-                            debugLog("Missing SCIM data");
+                            debugLog("Not using registration because it is disabled.");
                         }
-                    } else {
-                        debugLog("bad SCIM response");
+                    }
+
+                    /*
+                    * Now that we have performed enrollment discovery, decide what to return to the client
+                    */
+
+                    /*
+                    * If fingerprint methods are enabled, and we have at least one, add to the results
+                    */
+                    if ((ENABLED_MOBILE_PUSH_METHODS.bestAvailable || ENABLED_MOBILE_PUSH_METHODS.fingerprint) && fingerprintMethods != null && fingerprintMethods.length > 0) {
+                        debugLog("There are fingerprintMethods: " + fingerprintMethods.length);
+
+                        for (let i = 0; i < fingerprintMethods.length; i++) {
+                            result.signatures.push(fingerprintMethods[i]);
+                            result.total = result.total + 1;
+
+                            // also store method state object so that if used, kick-off process can retrieve it
+                            let methodStateObj = {
+                                "id": fingerprintMethods[i].id,
+                                "username": username,
+                                "scimID": scimID,
+                                "authenticatorId": fingerprintMethods[i].attributes["authenticatorId"],
+                                "fingerprint": true
+                            };
+                            AuthSvcState.storeState(fingerprintMethods[i].id, methodStateObj);
+                        }
+                    }
+
+                    /*
+                    * If user presence methods are explicitly enabled (or best available is enabled and we don't have any fingerprint methods) add any we have
+                    */
+                    if ((((!ENABLED_MOBILE_PUSH_METHODS.bestAvailable && ENABLED_MOBILE_PUSH_METHODS.userPresence) || (ENABLED_MOBILE_PUSH_METHODS.bestAvailable && result.total == 0)))
+                            && userPresenceMethods != null && userPresenceMethods.length > 0) {
+                        debugLog("There are userPresenceMethods: " + userPresenceMethods.length);
+                        for (let i = 0; i < userPresenceMethods.length; i++) {
+                            result.signatures.push(userPresenceMethods[i]);
+                            result.total = result.total + 1;
+
+                            // also store method state object so that if used, kick-off process can retrieve it
+                            let methodStateObj = {
+                                "id": userPresenceMethods[i].id,
+                                "username": username,
+                                "scimID": scimID,
+                                "authenticatorId": userPresenceMethods[i].attributes["authenticatorId"],
+                                "fingerprint": false
+                            };
+                            AuthSvcState.storeState(userPresenceMethods[i].id, methodStateObj);
+                        }
                     }
                 } else {
-                    debugLog("Missing SCIM configuration - does the authentication policy include SCIM Endpoint Configuration?");
+                    debugLog("No registered mobile multi-factor authenticators");
                 }
             } else {
                 debugLog("User not found: " + username);
@@ -1242,7 +1216,7 @@ function processGetSignatures(ulh, currentClient, uri) {
 function mobilePushKickoff(methodObj, contextMessage) {
     let result = {};
 
-    // now time to kick it off with ISAM
+    // now time to kick it off with ISVA
     let body = {
         "PolicyId": "urn:ibm:security:authentication:asf:verify_gateway_mmfa_initiate",
         "username": methodObj.username,
@@ -1435,7 +1409,7 @@ function processPollSignatureVerification(ulh, currentClient, uri) {
 
         if (authsvcResponse.status == "success") {
 
-            // this is the success path for ISAM
+            // this is the success path for ISVA
             stateObj.transaction.state = "VERIFY_SUCCESS";
 
         } else if (authsvcResponse.status == "pause") {
@@ -1454,7 +1428,7 @@ function processPollSignatureVerification(ulh, currentClient, uri) {
             }
         } else if (authsvcResponse.status == "abort") {
 
-            // this is the denied path for ISAM
+            // this is the denied path for ISVA
             stateObj.transaction.state = "USER_DENIED";
 
         } else {

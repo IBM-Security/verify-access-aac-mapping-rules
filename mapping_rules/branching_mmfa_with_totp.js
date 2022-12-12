@@ -2,6 +2,8 @@ importClass(Packages.com.tivoli.am.fim.trustserver.sts.utilities.IDMappingExtUti
 
 importMappingRule("BranchingHelper");
 
+// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+
 IDMappingExtUtils.traceString("Entry MMFA with TOTP Fallback");
 
 // The result of the rule. If false, the mapping rule will be run again. If true,
