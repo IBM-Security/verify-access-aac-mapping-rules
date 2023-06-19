@@ -252,6 +252,16 @@ function autofillFIDOResult() {
         if(assertionResult["user"] && assertionResult["user"]["name"]) {
             context.set(Scope.SESSION, "urn:ibm:security:asf:response:token:attributes", "username", assertionResult["user"]["name"]);
             context.set(Scope.SESSION, "urn:ibm:security:asf:response:token:attributes", "authenticationMechanismTypes", "urn:ibm:security:authentication:asf:mechanism:autofillFIDO");
+
+            // add any other mediator-populated credential attributes as well
+            if (assertionResult.attributes != null && assertionResult.attributes.credentialData != null) {
+                Object.keys(assertionResult.attributes.credentialData).forEach((key) => {
+                    if (assertionResult.attributes.credentialData[key] != null) {
+                        context.set(Scope.SESSION, "urn:ibm:security:asf:response:token:attributes", key, assertionResult.attributes.credentialData[key]);
+                    }
+                });
+            }
+
             state.put("credentialId", id);
 
             if(authenticatorAttachment != null) {
