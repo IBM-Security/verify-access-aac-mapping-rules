@@ -901,6 +901,10 @@ if(assert_no_code_reuse) {
  * definition configuration.
  *
  * To set a custom id or secret, set the boolean to true.
+ * 
+ * This is not recommend due to not following the best practises  
+ * The specification you may find here
+ * https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics#client_impersonating
  */
 
 var custom_client_id_secret = false;
@@ -922,6 +926,61 @@ if (custom_client_id_secret) {
    
   }
 }
+
+
+/* 
+ * To enable the redirectURI https check, set the custom_enable_redirecturis_validations boolean to true.
+ * According to https://www.rfc-editor.org/rfc/rfc8252#section-7.3
+ * Native apps that are able to open a port on the loopback network
+ * interface without needing special permissions (typically, those on
+ * desktop operating systems) can use the loopback interface to receive
+ * the OAuth redirect.
+ * 
+ * Loopback redirect URIs use the "http" scheme and are constructed with
+ * the loopback IP literal and whatever port the client is listening on.
+ *
+ * in here we only blackout the http request and user can add more check if required
+ * 
+ * The specification you may find here
+ * https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics
+ *
+ */
+var custom_enable_redirecturis_validations = false;
+if (custom_enable_redirecturis_validations) {
+  var method = stsuu.getContextAttributes().getAttributeValueByNameAndType("method", "urn:ibm:names:ITFIM:oauth:method");
+  if(request_type =='client_register' && ( method == "POST" || method == "PUT") ){
+	var redirect_uris = stsuu.getContextAttributes().getAttributeValuesByNameAndType("redirect_uris", "urn:ibm:names:ITFIM:oauth:body:param");
+	//redirect_uris not empty, check to ensure safe
+	if(redirect_uris.length > 0){
+		for(var i = 0; i < redirect_uris.length; i++) {
+			var redirect_uri = redirect_uris[i];
+			IDMappingExtUtils.traceString(stsuu.toClearTextString(), java.util.logging.Level.INFO);
+			IDMappingExtUtils.traceString(redirect_uri, java.util.logging.Level.INFO);
+			if(redirect_uri.toLowerCase().startsWith("http:")){
+				OAuthMappingExtUtils.throwSTSUserMessageException("Redirect URL starts with http is not valid");
+			}
+		}
+	}
+  }
+}
+
+/*
+ * When generating dynamic clients, enable PKCE is recommneded by the security best practises 
+ * To enable the pkce by default, set the custom_enable_default_pkce boolean to true.
+ *
+ * The specification you may find here
+ * https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics
+ *
+ */
+var custom_enable_default_pkce = false;
+if (custom_enable_default_pkce) {
+  var method = stsuu.getContextAttributes().getAttributeValueByNameAndType("method", "urn:ibm:names:ITFIM:oauth:method");
+  if(request_type =='client_register' && ( method == "POST" || method == "PUT") ){
+	stsuu.addContextAttribute(new com.tivoli.am.fim.trustserver.sts.uuser.Attribute("isPkce","urn:ibm:names:ITFIM:oauth:body:param",true));
+  }
+}
+
+
 
 
 

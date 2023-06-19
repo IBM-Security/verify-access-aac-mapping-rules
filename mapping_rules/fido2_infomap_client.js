@@ -25,6 +25,10 @@ function requestParam(key) {
 // converts it to a string which can be parsed by JSON.parse
 function requestParams(key) {
     var value = context.get(Scope.REQUEST, "urn:ibm:security:asf:request:parameters", key);
+    if(value.length == 1 && value[0].includes('[')) {
+        // Already an array, shortcut now.
+        return value[0];
+    }
     var valueJson = '';
     if(value != null) {
         valueJson = '['
