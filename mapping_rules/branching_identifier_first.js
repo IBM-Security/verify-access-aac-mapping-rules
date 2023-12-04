@@ -192,7 +192,7 @@ success.setValue(result);
 IDMappingExtUtils.traceString("Exit Branching Identifier First Authentication");
 
 function autofillFIDOOptions() {
-    var assertionOptions = JSON.parse(fido_client.assertionOptions(JSON.stringify({"userVerification":"required"})));
+    var assertionOptions = JSON.parse(fido_client.assertionOptions(JSON.stringify({"userVerification":"required", "timeout":86400})));
     IDMappingExtUtils.traceString("FIDO Assertion Options: " + JSON.stringify(assertionOptions));
     var status = assertionOptions['status'];
     if (status == 'ok') {
@@ -252,6 +252,16 @@ function autofillFIDOResult() {
         if(assertionResult["user"] && assertionResult["user"]["name"]) {
             context.set(Scope.SESSION, "urn:ibm:security:asf:response:token:attributes", "username", assertionResult["user"]["name"]);
             context.set(Scope.SESSION, "urn:ibm:security:asf:response:token:attributes", "authenticationMechanismTypes", "urn:ibm:security:authentication:asf:mechanism:autofillFIDO");
+
+            // add any other mediator-populated credential attributes as well
+            if (assertionResult.attributes != null && assertionResult.attributes.credentialData != null) {
+                Object.keys(assertionResult.attributes.credentialData).forEach((key) => {
+                    if (assertionResult.attributes.credentialData[key] != null) {
+                        context.set(Scope.SESSION, "urn:ibm:security:asf:response:token:attributes", key, assertionResult.attributes.credentialData[key]);
+                    }
+                });
+            }
+
             state.put("credentialId", id);
 
             if(authenticatorAttachment != null) {
