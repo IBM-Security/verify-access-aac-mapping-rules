@@ -912,24 +912,6 @@ function processMACOTPSubmit(ulh, currentClient, uri, deliveryType, otp) {
     return result;
 }
 
-function getSCIMQueryURL(scimID) {
-    let attributes = "urn:ietf:params:scim:schemas:extension:isam:1.0:MMFA:Authenticator:userPresenceMethods,urn:ietf:params:scim:schemas:extension:isam:1.0:MMFA:Authenticator:authenticators,urn:ietf:params:scim:schemas:extension:isam:1.0:MMFA:Authenticator:fingerprintMethods";
-    let result = result = "/Users/"+scimID+"?attributes=" + attributes;
-    debugLog("getSCIMQueryURL("+scimID+") : " + result);
-    return result;
-}
-
-function getSCIMUserRecordFromResults(jobj) {
-    let result = null;
-
-    // we get back just the user object or an error
-    if (jobj['meta'] != null) {
-        result = jobj;
-    }
-
-    return result;
-}
-
 function getDeviceObjFromRegistration(scimID, username, reg, regid, fingerprintSupport) {
     // whilst the device.id attribute populated below is logically the authenticator id, for
     // the ISVA integration we set it to the logical fingerprintMethod id or userPresenceMethod id

@@ -26,6 +26,15 @@ function utf8decode(value) {
   return decodeURIComponent(escape(value));
 }
 
+function deepcopy(obj) {
+  if (null == obj || "object" != typeof obj) return obj;
+  var copy = obj.constructor();
+  for (var attr in obj) {
+    if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+  }
+  return copy;
+}
+
 /*
  * Get the email address.
  */
@@ -193,8 +202,11 @@ function createScimJson() {
       macros.put(macroName, val);
     }
 
-    IDMappingExtUtils.traceString("SCIM "+a[attrToScimMap.ATTR]+" = "+val);
-
+    if(a[attrToScimMap.ATTR] !== "password") {
+      IDMappingExtUtils.traceString("SCIM "+a[attrToScimMap.ATTR]+" = "+val);
+    } else {
+      IDMappingExtUtils.traceString("SCIM "+a[attrToScimMap.ATTR]+" = ****");
+    }
     setInHash(a, ""+val, scim)
 
   }
@@ -204,7 +216,9 @@ function createScimJson() {
     if (multiValueAttrs[attr] in scim) scim[multiValueAttrs[attr]] = [ scim[multiValueAttrs[attr]] ];
   }
 
-  IDMappingExtUtils.traceString("SCIM JSON: "+JSON.stringify(scim));
+  var scimClone = deepcopy(scim);
+  scimClone["password"] = "****";
+  IDMappingExtUtils.traceString("SCIM JSON: "+JSON.stringify(scimClone));
 
   return scim;
 }

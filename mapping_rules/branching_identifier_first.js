@@ -192,7 +192,7 @@ success.setValue(result);
 IDMappingExtUtils.traceString("Exit Branching Identifier First Authentication");
 
 function autofillFIDOOptions() {
-    var assertionOptions = JSON.parse(fido_client.assertionOptions(JSON.stringify({"userVerification":"required"})));
+    var assertionOptions = JSON.parse(fido_client.assertionOptions(JSON.stringify({"userVerification":"required", "timeout":86400})));
     IDMappingExtUtils.traceString("FIDO Assertion Options: " + JSON.stringify(assertionOptions));
     var status = assertionOptions['status'];
     if (status == 'ok') {
