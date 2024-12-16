@@ -1,7 +1,7 @@
 importClass(Packages.com.tivoli.am.fim.fido.mediation.FIDO2RegistrationHelper);
 importClass(Packages.com.tivoli.am.fim.trustserver.sts.utilities.IDMappingExtUtils);
 
-// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+// Copyright contributors to the IBM Verify Identity Access AAC Mapping Rules project.
 
 
 /* Some mediator demos */

@@ -1,7 +1,7 @@
 importPackage(Packages.com.tivoli.am.fim.registrations);
 importMappingRule("BranchingHelper");
 
-// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+// Copyright contributors to the IBM Verify Identity Access AAC Mapping Rules project.
 
 var successParam = context.get(Scope.REQUEST, "urn:ibm:security:asf:request:parameter", "success");
 var username = context.get(Scope.SESSION, "urn:ibm:security:asf:response:token:attributes", "username");

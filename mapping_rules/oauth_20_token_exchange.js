@@ -9,7 +9,7 @@ importClass(Packages.com.tivoli.am.fim.fedmgr2.trust.util.LocalSTSClient);
 importClass(Packages.java.util.ArrayList);
 importClass(Packages.java.util.HashMap);
 
-// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+// Copyright contributors to the IBM Verify Identity Access AAC Mapping Rules project.
 
 /**
  * This function doTokenExchangePre shows an example of validate token claims and generate the access_token for 
@@ -24,7 +24,7 @@ importClass(Packages.java.util.HashMap);
 
 /**
  * @param: useSTSforTokenGenerate - Config option to generate the token from this pre mapping rule.
- * ISVA will issue a regular access token if the varialbe set to false.
+ * IVIA will issue a regular access token if the varialbe set to false.
  * If set to true, STS chain will be called to generate the token.
  *
  * @param: store_dbConfig - Config option to stored the token which generated through this mapping rule to DB. This should be set

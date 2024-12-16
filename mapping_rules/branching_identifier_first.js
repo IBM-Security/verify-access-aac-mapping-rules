@@ -3,7 +3,7 @@ importClass(Packages.java.util.Base64);
 
 importMappingRule("BranchingHelper");
 
-// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+// Copyright contributors to the IBM Verify Identity Access AAC Mapping Rules project.
 
 IDMappingExtUtils.traceString("Entry Branching Identifier First Authentication");
 

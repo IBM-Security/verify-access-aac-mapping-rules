@@ -1,6 +1,6 @@
 importClass(Packages.com.tivoli.am.fim.trustserver.sts.utilities.IDMappingExtUtils);
 
-// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+// Copyright contributors to the IBM Verify Identity Access AAC Mapping Rules project.
 
 /*
  * This rule is to be used within an InfoMap authentication mechanism to

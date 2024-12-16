@@ -2,7 +2,7 @@ importClass(Packages.com.tivoli.am.fim.trustserver.sts.utilities.IDMappingExtUti
 
 importMappingRule("BranchingHelper");
 
-// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+// Copyright contributors to the IBM Verify Identity Access AAC Mapping Rules project.
 
 IDMappingExtUtils.traceString("Entry MMFA with TOTP Fallback");
 
@@ -17,7 +17,7 @@ var mechanisms = [];
 
 var username = checkLogin();
 
-// If the user just authed with basicAuth, or authed with ISVA, or the user
+// If the user just authed with basicAuth, or authed with IVIA, or the user
 // just performed a CI auth, you may pass!
 if(username != null) {
     var mmfaRegistrations = MechanismRegistrationHelper.getMmfaRegistrationsForUser(username);

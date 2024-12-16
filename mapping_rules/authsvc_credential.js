@@ -1,4 +1,4 @@
-// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+// Copyright contributors to the IBM Verify Identity Access AAC Mapping Rules project.
 
 // AuthSvcCredential mapping rule.
 
@@ -10,7 +10,7 @@
 // "stsuu" is an instance of STSUniversalUser Java class. You can find the
 // javadoc of this class in Local Management Interface under Manage (System
 // Settings) >> Secure Settings >> File Downloads. In File Downloads panel,
-// download ISVA-javadoc.zip under mga >> doc. The javadoc of STSUniversalUser
+// download IVIA-javadoc.zip under mga >> doc. The javadoc of STSUniversalUser
 // class is located under com.tivoli.am.fim.sts directory. 
 
 // To retrieve an attribute from "context", you can invoke its "get" method by
@@ -29,9 +29,9 @@ var stsuuAttrs = stsuu.getAttributeContainer();
 var policyID = context.get(Scope.SESSION, "urn:ibm:security:asf:policy", "policyID");
 
 if (policyID.equals("urn:ibm:security:authentication:asf:password")) {
-    // Add attribute "authenticatedBy" with value "IBM Security Verify Access"
+    // Add attribute "authenticatedBy" with value "IBM Verify Identity Access"
     // to the current user credential.
-    stsuuAttrs.setAttribute(new Attribute("authenticatedBy", null, "IBM Security Verify Access"));
+    stsuuAttrs.setAttribute(new Attribute("authenticatedBy", null, "IBM Verify Identity Access"));
     
     /**
     * OIDC Conformance-Example 1.1.1

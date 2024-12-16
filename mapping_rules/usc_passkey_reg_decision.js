@@ -1,7 +1,7 @@
 importClass(Packages.com.tivoli.am.fim.trustserver.sts.utilities.IDMappingExtUtils);
 importMappingRule("BranchingHelper");
 
-// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+// Copyright contributors to the IBM Verify Identity Access AAC Mapping Rules project.
 
 IDMappingExtUtils.traceString("Entry USC_Passkey_Reg_Decision.js");
 

@@ -12,7 +12,7 @@ importClass(Packages.java.util.ArrayList);
 importClass(Packages.java.util.HashMap);
 importMappingRule("Oauth_20_TokenExchange");
 
-// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+// Copyright contributors to the IBM Verify Identity Access AAC Mapping Rules project.
 
 /**
  * This mapping rule uses a user registry for verification of the username 
@@ -1089,7 +1089,7 @@ if (definition_id != null && OAuthMappingExtUtils.isOidcCompliantByDefinitionID(
 	 * OIDC Conformance-Example 1.3
 	 * This piece of code is used to throw an error if redirect_uri is not an exact match to the registered redirect_uri.
 	 * If there are query parameters added to the registered redirect_uri, the below code will throw an STS Exception.
-	 * By default ISVA does not restrict additional query parameters added to a registered redirect_uri.
+	 * By default IVIA does not restrict additional query parameters added to a registered redirect_uri.
 	**/
 
 	var temp_attr = null;
@@ -1317,7 +1317,7 @@ if (definition_id != null && OAuthMappingExtUtils.isFapiCompliantByDefinitionID(
 	// The hash algorithm to use is dictated by the signing algorithm of JWT
 	var alg = stsuu.getContextAttributes().getAttributeValueByNameAndType("signing.alg", "urn:ibm:oidc10:jwt:create");
 
-	// For now only SHA-256 and SHA-512 are supported natively by ISVA.
+	// For now only SHA-256 and SHA-512 are supported natively by IVIA.
 	// Consider using KJUR or similar if SHA384 is needed.
 	var hash = null;
 
@@ -1480,7 +1480,7 @@ if (definition_id != null && OAuthMappingExtUtils.isFapiCompliantByDefinitionID(
 if (request_type == "access_token" && grant_type == "urn:ietf:params:oauth:grant-type:token-exchange") {
 	/*
 	 * Config option to generate the token from this pre mapping rule. 
-	 * ISVA will issue a regular access token if the varialbe set to false.
+	 * IVIA will issue a regular access token if the varialbe set to false.
 	 * If set to true, STS chain will be called to generate the token.
 	 */
 	var useSTSforTokenGenerate = false;

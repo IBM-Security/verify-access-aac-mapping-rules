@@ -13,7 +13,7 @@ importClass(Packages.java.util.ArrayList);
 importClass(Packages.java.util.HashMap);
 importMappingRule("Oauth_20_TokenExchange");
 
-// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+// Copyright contributors to the IBM Verify Identity Access AAC Mapping Rules project.
 
 /**
  *
@@ -328,15 +328,15 @@ if (isMmfaScopePresent()) {
 
 		var device_name = stsuu.getContextAttributes().getAttributeValuesByName("device_name");
 		if (device_name != null && device_name.length > 0) {
-			device_name = device_name[0];
+			device_name = IDMappingExtUtils.escapeHtml(device_name[0]);
 		} 
 		var device_type = stsuu.getContextAttributes().getAttributeValuesByName("device_type");
 		if (device_type != null && device_type.length > 0) {
-			device_type = device_type[0];
+			device_type = IDMappingExtUtils.escapeHtml(device_type[0]);
 		} 
 		var os_version	= stsuu.getContextAttributes().getAttributeValuesByName("os_version");
 		if (os_version != null && os_version.length > 0) {
-			os_version = os_version[0];
+			os_version = IDMappingExtUtils.escapeHtml(os_version[0]);
 		} 
 		var fingerprint_support	 = stsuu.getContextAttributes().getAttributeValuesByName("fingerprint_support");
 		if (fingerprint_support != null && fingerprint_support.length > 0) {
