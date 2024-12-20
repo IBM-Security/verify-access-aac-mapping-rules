@@ -3,7 +3,7 @@ importPackage(Packages.com.ibm.security.access.scimclient);
 importMappingRule("BranchingHelper");
 importMappingRule("USC_Common");
 
-// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+// Copyright contributors to the IBM Verify Identity Access AAC Mapping Rules project.
 
 IDMappingExtUtils.traceString("Entry USC_Passkey_CollectProfile.js");
 

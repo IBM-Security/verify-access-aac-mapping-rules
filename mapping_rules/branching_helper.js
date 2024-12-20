@@ -2,7 +2,7 @@ importClass(Packages.com.tivoli.am.fim.trustserver.sts.utilities.IDMappingExtUti
 importPackage(Packages.com.tivoli.am.fim.registrations);
 importPackage(Packages.com.ibm.security.access.user);
 
-// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+// Copyright contributors to the IBM Verify Identity Access AAC Mapping Rules project.
 
 /**
  * Get the branches of this decision from the BRANCHES macro.

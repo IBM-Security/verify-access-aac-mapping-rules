@@ -7,9 +7,9 @@ importClass(Packages.com.tivoli.am.fim.base64.BASE64Utility);
 importClass(Packages.com.tivoli.am.fim.authsvc.local.client.AuthSvcClient);
 
 /**
- * Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+ * Copyright contributors to the IBM Verify Identity Access AAC Mapping Rules project.
  *
- * This mapping rule allows a IBM Security Verify Gateway user to authenticate using
+ * This mapping rule allows a IBM Verify Gateway user to authenticate using
  * on-premise registered authentication methods.
  *
  * Updates to this file will also be made available at:
@@ -25,7 +25,7 @@ var PERSISTENT_CACHE_TIMEOUT = 300; // 5 mins
 var POINT_OF_CONTACT_URL = "https://www.mmfa.ibm.com";
 
 //
-// The set of permitted ISVA OAuth clients that can invoke this Infomap/policy.
+// The set of permitted IVIA OAuth clients that can invoke this Infomap/policy.
 // You need to put your OAuth client in this list, or create one called VerifyGatewayClient.
 //
 var allowedClients = [ "VerifyGatewayClient" ];
@@ -40,7 +40,7 @@ var allowedClients = [ "VerifyGatewayClient" ];
 var clientToAllowedGroups = null;
 
 //
-// Simple config used to control which ISVA 2FA methods are allowed to be returned
+// Simple config used to control which IVIA 2FA methods are allowed to be returned
 //
 var ENABLED_2FA_METHODS = {
         totp: true,
@@ -528,7 +528,7 @@ function processFactorsMACOTPStart(ulh, currentClient, uri, deliveryType, delive
         // store state information based on initial stateId of this policy invocation
         // that's because the stateid sent to the client in the factors-like response is
         // static for the lifetime of this attempt at MAC OTP, however the user may try
-        // multiple times and each time the ISVA-based StateId will change
+        // multiple times and each time the IVIA-based StateId will change
         let stateObj = {
                 "stateId": jsonBody["stateId"]
         }
@@ -587,7 +587,7 @@ function processFactorsMACOTPSubmit(ulh, currentClient, uri, deliveryType, otp) 
             throwError("processFactorsMACOTPSubmit", "Unable to retrieve authsvc session state");
         }
 
-        // now time to verify against ISVA
+        // now time to verify against IVIA
         let body = {
             "StateId": stateObj.stateId,
             "otp.user.otp": otp,
@@ -792,7 +792,7 @@ function processUserAuthentication(ulh, currentClient, uri, username, pwd) {
 function processMACOTPStart(ulh, currentClient, uri, deliveryType, deliveryAttribute) {
     let result = {};
 
-    // now time to kick it off with ISVA
+    // now time to kick it off with IVIA
     let body = {
         "PolicyId": "urn:ibm:security:authentication:asf:verify_gateway_macotp",
         "username": 'transient',
@@ -822,7 +822,7 @@ function processMACOTPStart(ulh, currentClient, uri, deliveryType, deliveryAttri
         // store state information based on initial stateId of this policy invocation
         // that's because the stateid sent to the client in the ISV-like response is
         // static for the lifetime of this attempt at MAC OTP, however the user may try
-        // multiple times and each time the ISVA-based StateId will change
+        // multiple times and each time the IVIA-based StateId will change
         let stateObj = {
                 "stateId": jsonBody["stateId"]
         }
@@ -876,7 +876,7 @@ function processMACOTPSubmit(ulh, currentClient, uri, deliveryType, otp) {
             throwError("processMACOTPSubmit", "Unable to retrieve authsvc session state");
         }
 
-        // now time to verify against ISVA
+        // now time to verify against IVIA
         let body = {
             "StateId": stateObj.stateId,
             "otp.user.otp": otp,
@@ -914,7 +914,7 @@ function processMACOTPSubmit(ulh, currentClient, uri, deliveryType, otp) {
 
 function getDeviceObjFromRegistration(scimID, username, reg, regid, fingerprintSupport) {
     // whilst the device.id attribute populated below is logically the authenticator id, for
-    // the ISVA integration we set it to the logical fingerprintMethod id or userPresenceMethod id
+    // the IVIA integration we set it to the logical fingerprintMethod id or userPresenceMethod id
     // so that when returned as part of mobile push kick-off we know precisely
     // which response policy (userpresence or fingerprint) to auto-select for invocation.
     // It allows mobilePushKickoff to select userpresence or fingerprint response
@@ -922,7 +922,7 @@ function getDeviceObjFromRegistration(scimID, username, reg, regid, fingerprintS
 
     //
     // also deviceType is used in the display to human about what method to select.
-    // If ISVA has both biometric (e.g. fingerprint) and user-presence registered, there
+    // If IVIA has both biometric (e.g. fingerprint) and user-presence registered, there
     // is no way for the user to see the difference, so we annotate the deviceType
     //
     let result = {
@@ -1198,7 +1198,7 @@ function processGetSignatures(ulh, currentClient, uri) {
 function mobilePushKickoff(methodObj, contextMessage) {
     let result = {};
 
-    // now time to kick it off with ISVA
+    // now time to kick it off with IVIA
     let body = {
         "PolicyId": "urn:ibm:security:authentication:asf:verify_gateway_mmfa_initiate",
         "username": methodObj.username,
@@ -1391,7 +1391,7 @@ function processPollSignatureVerification(ulh, currentClient, uri) {
 
         if (authsvcResponse.status == "success") {
 
-            // this is the success path for ISVA
+            // this is the success path for IVIA
             stateObj.transaction.state = "VERIFY_SUCCESS";
 
         } else if (authsvcResponse.status == "pause") {
@@ -1410,7 +1410,7 @@ function processPollSignatureVerification(ulh, currentClient, uri) {
             }
         } else if (authsvcResponse.status == "abort") {
 
-            // this is the denied path for ISVA
+            // this is the denied path for IVIA
             stateObj.transaction.state = "USER_DENIED";
 
         } else {

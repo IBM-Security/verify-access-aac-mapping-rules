@@ -2,7 +2,7 @@ importClass(Packages.com.tivoli.am.fim.trustserver.sts.utilities.IDMappingExtUti
 
 importMappingRule("BranchingHelper");
 
-// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+// Copyright contributors to the IBM Verify Identity Access AAC Mapping Rules project.
 
 IDMappingExtUtils.traceString("Entry Branching Username-less");
 

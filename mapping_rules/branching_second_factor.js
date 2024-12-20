@@ -3,7 +3,7 @@ importPackage(Packages.com.ibm.security.access.user);
 
 importMappingRule("BranchingHelper");
 
-// Copyright contributors to the IBM Security Verify Access AAC Mapping Rules project.
+// Copyright contributors to the IBM Verify Identity Access AAC Mapping Rules project.
 
 IDMappingExtUtils.traceString("Entry Branching Second Factor");
 
@@ -22,7 +22,7 @@ var mechanisms = [];
 
 var username = checkLogin();
 
-// If the user just authed with basicAuth, or authed with ISVA, or the user
+// If the user just authed with basicAuth, or authed with IVIA, or the user
 // just performed a CI auth, you may pass!
 if(username != null) {
 
