@@ -810,7 +810,7 @@ if (definition_id != null && OAuthMappingExtUtils.isOidcCompliantByDefinitionID(
 	 * This can be used to sign the userinfo response, based on the userinfo_signed_response_alg requested during client registration.
 	 * 
 	 * This requires an STS chain to be created, STSUU to JWT. Read the following article for more details.
-	 * https://www.ibm.com/support/knowledgecenter/SSPREK_9.0.6/com.ibm.isam.doc/config/concept/oidc_claims_customization.html
+	 * https://www.ibm.com/docs/en/sva/latest?topic=support-oidc-claims-customization
 	 * Make sure  the easuser user and password match the values that are being sent. 
 	 * Since the testcase required the JWT to be signed, in the JWT STS module, Signing Algo, singature is set to RS256
 	 **/
