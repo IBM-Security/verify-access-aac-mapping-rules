@@ -86,7 +86,7 @@ if (debug) {
   // com.tivoli.am.fim.trustserver.sts.utilities.*=ALL
   //
   // To see how to enable trace on IVIA see: 
-  // https://www.ibm.com/support/knowledgecenter/en/SSPREK_9.0.5/com.ibm.isam.doc/config/task/tsk_runtime_tuning.html
+  // https://www.ibm.com/docs/en/sva/latest?topic=settings-runtime-parameters
 	logAvailableContext();
 }
 

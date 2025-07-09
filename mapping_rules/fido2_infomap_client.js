@@ -76,6 +76,7 @@ if (fidoInfoMap == "attestationOptions") {
         var excludeCredentials = options['excludeCredentials'];
         macros.put("@FIDO_EXCLUDED_CREDENTIALS@", JSON.stringify( excludeCredentials));
         macros.put("@FIDO_INFOMAP_PARAM@", "&fidoInfoMap=attestationResult");
+        macros.put("@FIDO_AAGUID_LOOKUP@", fido_client.getAaguidLookupTable());
         page.setValue('/authsvc/authenticator/infomap/fido_attestation.html');
     } else {
         macros.put("@ERROR_MESSAGE@", options['errorMessage']);
@@ -130,6 +131,7 @@ else if (fidoInfoMap == "assertionOptions") {
         macros.put("@FIDO_ERROR_MESSAGE@", options['errorMessage']);
         macros.put("@FIDO_ALLOW_CREDENTIALS@", options['allowCredentials'] == null ? "[]" : JSON.stringify(options['allowCredentials']));
         macros.put("@FIDO_INFOMAP_PARAM@", "&fidoInfoMap=assertionResult");
+        macros.put("@FIDO_AAGUID_LOOKUP@", fido_client.getAaguidLookupTable());
         page.setValue('/authsvc/authenticator/infomap/fido_assertion.html');
     } else {
         macros.put("@ERROR_MESSAGE@", options['errorMessage']);
